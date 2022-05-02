@@ -52,7 +52,7 @@ class CustOffences extends React.Component {
                         <p>
                             Fine - {i[3]}
                         </p>
-                        <button className="pay" onClick={this.paymentHandler}>
+                        <button className="pay" onClick={() => this.paymentHandler(i[0])}>
                             Pay
                         </button>
                     </div>)}

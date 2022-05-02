@@ -38,8 +38,6 @@ class App extends React.Component {
         this.setState({
             userType: "police"
         })
-        console.log("1")
-        console.log(this.state)
     }
 
     async registerAsCust() {
@@ -60,8 +58,6 @@ class App extends React.Component {
         this.setState({
             loggedin: true
         })
-        console.log("3")
-        console.log(this.state)
     }
 
     async custRegisterHandler(regNumber, password, email, phoneno, name) {
@@ -84,7 +80,8 @@ class App extends React.Component {
         return 
     }
 
-    async addOffence() {
+    async addOffence(location, offence, image) {
+        //add functionality to add offences
         return
     }
 
@@ -158,8 +155,6 @@ class App extends React.Component {
     
     render() {
         if (this.state.loggedin) {
-            console.log("2")
-            console.log(this.state)
             if(this.state.userType == "customer") {
                 return this.custOffences()
             }
