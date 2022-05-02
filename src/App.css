@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.chooseLogin {
+  width: 20vw;
+  height: 40vh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+}
+
+.b1 {
+  margin-top: 30px;
+}
+
+.logOut {
+  width:7vw;
+  position: absolute;
+  top: 0.2%;
+  right: 0.2%;
+}
