@@ -6,51 +6,61 @@ contract Ticket{
 
     address owner;
     uint256 challanAmount = 0.01 ether;
-    mapping (address => ticket) public ticketHolder;
+    mapping (address => ticket[]) public ticketHolder;
 
     constructor(){
             owner = msg.sender;
     }
 
     struct ticket {
-  
-        // Declaring different data types
-        // uint index;
-        uint8 _id;
+        uint256 _id;
         string _offence;
         uint256 _amount;
     }
 
-      // function add(address owner, uint arg1, uint arg2, uint arg3) external {
-    //     ticketHolder[_user].push(Item(_id, _offence, _amount));
-    // }
-
-    function issueTicketsPolice(address _user, uint8 _id, string memory _offence, uint256 _amount) public {
+    function issueTicketsPolice(address _user, uint256 _id, string memory _offence, uint256 _amount) public {
         issueTickets(_user, _id, _offence, _amount);
     }
 
-    function payTicketFine(address _user, uint256 _amount) payable public {
+    function payTicketFine(address _user, uint256 _id, uint256 _amount) payable public {
         require(msg.value >= challanAmount*_amount);
-        payTicket(_user, _amount);
+        payTicket(_user, _id, _amount);
     }
 
 
-    function issueTickets(address _user, uint8 _id, string memory _offence, uint256 _amount) internal{
-        ticketHolder[_user]._id = _id;
-        ticketHolder[_user]._offence = _offence;
-        ticketHolder[_user]._amount = _amount;
-        // ticket memory n;
-        // n._id = _id;
-        // n._offence = _offence;
-        // n._amount = _amount;
-        // ticketHolder[_user][index] = n;
+    function issueTickets(address _user, uint256 _id, string memory _offence, uint256 _amount) internal{
+
+        ticket memory tick;
+        tick._id = _id;
+        tick._offence = _offence;
+        tick._amount = _amount;
+
+        ticketHolder[_user].push(tick);
+
     }
 
-    function payTicket(address _user, uint256 _amount) internal{
+    function getOffences(address _user) public view returns (ticket[] memory) {
 
-        // require(ticketHolder[_user][] == _id, "Please choose correct ticket");
-        require(ticketHolder[_user]._amount == _amount, "Please pay required amount");
-        ticketHolder[_user]._amount = ticketHolder[_user]._amount - _amount;
+        ticket[] memory ticketIDs = new ticket[](ticketHolder[_user].length);
+
+        for(uint ticketNumber = 0; ticketNumber < ticketHolder[_user].length;  ticketNumber++) {
+            ticketIDs[ticketNumber] = ticketHolder[_user][ticketNumber];
+        }
+        
+        return ticketIDs;
+    }
+
+    function payTicket(address _user, uint256 _id, uint256 _amount) internal{
+
+        ticket[] memory offences = getOffences(_user);
+        
+        for(uint ticketNumber = 0; ticketNumber < ticketHolder[_user].length;  ticketNumber++) {
+            if (offences[ticketNumber]._id == _id){
+                require(ticketHolder[_user][ticketNumber]._amount == _amount, "Please pay required amount");
+                ticketHolder[_user][ticketNumber]._amount = ticketHolder[_user][ticketNumber]._amount - _amount;
+            }
+        }
+
     }
 
     function withdraw() public{
@@ -68,15 +78,6 @@ contract Ticket{
     function getBalance() public view returns(uint256){
         return owner.balance;
     }
-
-//     function getOffences() public view returns (ticket[]){
-//       ticket[] id = new ticket[];
-//       for (uint i = 0; i < memberCount; i++) {
-//           Member storage member = members[i];
-//           id[i] = member;
-//       }
-//       return id;
-//   }
 }
 
 
