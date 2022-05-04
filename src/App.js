@@ -32,9 +32,9 @@ class App extends React.Component {
 
     async componentWillMount() {
         await this.loadWeb3()
-        /*this.setState({
+        this.setState({
             contract: this.loadContract()
-        })*/
+        })
     }
     
     async loadWeb3() {
@@ -48,7 +48,75 @@ class App extends React.Component {
     }
     
     async loadContract() {
-        return await new window.web3.eth.Contract()
+        return await new window.web3.eth.Contract([
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "issueTicketsPolice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "payTicketFine",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "ticketHolders",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+    ], '0x7aFAf5aEc87b73057be97843B09a6C89d40953ac')
     }
     
     async switchLoginAsCust() {
