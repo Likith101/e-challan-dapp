@@ -12,8 +12,6 @@ contract Ticket{
             owner = msg.sender;
     }
 
-
-
     function issueTicketsPolice(address _user, uint256 _amount) public {
         issueTickets(_user, _amount);
     }
@@ -38,6 +36,15 @@ contract Ticket{
         require(msg.sender == owner, "You are not the owner.");
         (bool success, ) = payable(owner).call{value: address(this).balance}("");
         require(success);
-    
+    }
+
+    // Function to return address of owner
+    function getOwner() public view returns (address) {    
+        return owner;
+    }
+  
+    // Function to return current balance of owner
+    function getBalance() public view returns(uint256){
+        return owner.balance;
     }
 }
