@@ -80,7 +80,3 @@ contract Ticket{
     }
 }
 
-
-
-
-
