@@ -43,7 +43,7 @@ contract Ticket{
         return owner;
     }
   
-    // Function to return current balance of owner
+    // Function to return current balance of Owner
     function getBalance() public view returns(uint256){
         return owner.balance;
     }
