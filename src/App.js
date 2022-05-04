@@ -4,6 +4,7 @@ import PoliceLogin from './views/PoliceLogin';
 import Register from './views/Register';
 import CustOffences from './views/CustOffences';
 import FileOffence from './views/FileOffence';
+import Web3 from 'web3';
 
 import './App.css'
 
@@ -14,7 +15,8 @@ class App extends React.Component {
 
         this.state = {
             userType: "none",
-            loggedin: false
+            loggedin: false,
+            contract: null
         }
 
         this.switchLoginAsCust = this.switchLoginAsCust.bind(this)
@@ -28,6 +30,27 @@ class App extends React.Component {
         this.addOffence = this.addOffence.bind(this)
     }
 
+    async componentWillMount() {
+        await this.loadWeb3()
+        /*this.setState({
+            contract: this.loadContract()
+        })*/
+    }
+    
+    async loadWeb3() {
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum)
+            await window.ethereum.enable()
+        }
+        else {
+            window.alert('Metamask authentication Necessary for application')
+        }
+    }
+    
+    async loadContract() {
+        return await new window.web3.eth.Contract()
+    }
+    
     async switchLoginAsCust() {
         this.setState({
             userType: "customer"
@@ -84,6 +107,7 @@ class App extends React.Component {
         //add functionality to add offences
         return
     }
+
 
     chooseLogin() {
         return (
