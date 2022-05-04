@@ -1,5 +1,4 @@
 import React from 'react';
-import './CustOffences.css';
 
 class CustOffences extends React.Component {
     
