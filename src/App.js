@@ -1,7 +1,4 @@
 import React from 'react';
-import CustLogin from './views/CustLogin';
-import PoliceLogin from './views/PoliceLogin';
-import Register from './views/Register';
 import CustOffences from './views/CustOffences';
 import FileOffence from './views/FileOffence';
 import Web3 from 'web3';
@@ -16,15 +13,83 @@ class App extends React.Component {
         this.state = {
             userType: "none",
             loggedin: false,
-            contract: null
+            userAddress: null,
+            owner: '0x7aFAf5aEc87b73057be97843B09a6C89d40953ac',
+            offences: [],
+            contractInfo: [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_user",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "issueTicketsPolice",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_user",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "payTicketFine",
+                    "outputs": [],
+                    "stateMutability": "payable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "inputs": [],
+                    "name": "withdraw",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "ticketHolders",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                }
+                ]
         }
 
         this.switchLoginAsCust = this.switchLoginAsCust.bind(this)
         this.switchLoginAsPolice = this.switchLoginAsPolice.bind(this)
         this.registerAsCust = this.registerAsCust.bind(this)
-        this.custLoginHandler = this.custLoginHandler.bind(this)
-        this.policeLoginHandler = this.policeLoginHandler.bind(this)
-        this.custRegisterHandler = this.custRegisterHandler.bind(this)
         this.logOut = this.logOut.bind(this)
         this.custPayHandler = this.custPayHandler.bind(this)
         this.addOffence = this.addOffence.bind(this)
@@ -32,15 +97,37 @@ class App extends React.Component {
 
     async componentWillMount() {
         await this.loadWeb3()
-        this.setState({
-            contract: this.loadContract()
-        })
+        window.contract = await this.loadContract()
+
+        if(this.state.userType == "customer") {
+            var offences = await window.contract.methods.getOffences(this.state.userAddress).call()
+            this.setState({
+                offences: offences
+            })
+        }
     }
     
     async loadWeb3() {
         if (window.ethereum) {
             window.web3 = new Web3(window.ethereum)
             await window.ethereum.enable()
+            
+            var accounts = window.web3.eth.getAccounts()
+            if(this.state.owner === accounts[0]) {
+                this.setState({
+                    loggedin: true,
+                    userType: "police",
+                    userAddress: accounts[0]
+                })
+            }
+            else {
+                
+                this.setState({
+                    loggedin: true,
+                    userType: "customer",
+                    userAddress: accounts[0]
+                })
+            }
         }
         else {
             window.alert('Metamask authentication Necessary for application')
@@ -48,75 +135,7 @@ class App extends React.Component {
     }
     
     async loadContract() {
-        return await new window.web3.eth.Contract([
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "issueTicketsPolice",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "payTicketFine",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "withdraw",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "ticketHolders",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-    ], '0x7aFAf5aEc87b73057be97843B09a6C89d40953ac')
+        return await new window.web3.eth.Contract(this.state.contractInfo, this.state.owner)
     }
     
     async switchLoginAsCust() {
@@ -137,28 +156,6 @@ class App extends React.Component {
         })
     }
 
-    async custLoginHandler(regNumber, password) {
-        //add functionality for customer login
-        this.setState({
-            loggedin: true
-        })
-    }
-
-    async policeLoginHandler(id, password) {
-        //add functionality for police login
-        this.setState({
-            loggedin: true
-        })
-    }
-
-    async custRegisterHandler(regNumber, password, email, phoneno, name) {
-        //add functionality for customer registration
-        this.setState({
-            userType: "customer",
-            loggedin: true
-        })
-    }
-
     async logOut() {
         this.setState({
             userType: "none",
@@ -167,58 +164,24 @@ class App extends React.Component {
     }
 
     async custPayHandler(id) {
-        //add functionality to pay for offence
+        await window.contract.methods.payTicketFine(this.state.userAddress, id).call()
         return 
     }
 
-    async addOffence(location, offence, image) {
-        //add functionality to add offences
+    async addOffence(location, offence, fine) {
+        await window.contract.methods.issueTicketsPolice(location, offence, fine).call()
         return
     }
-
-
-    chooseLogin() {
-        return (
-            <div>
-                <div className="chooseLogin">
-                    <button className="b1" onClick={this.switchLoginAsCust}>
-                        Login as Customer
-                    </button>
-                    <button className="b1" onClick={this.switchLoginAsPolice}>
-                        Login as Police
-                    </button>
-                    <button className="b1" onClick={this.registerAsCust}>
-                        Register as Customer
-                    </button>
-                </div>
-            </div>
-        )
-    }
-
-    custLogin() {
-        return (
-            <div>
-                <CustLogin loginFunc = {this.custLoginHandler}/>
-            </div>
-        )
-    }
-
-    policeLogin() {
-        return (
-            <div>
-                <PoliceLogin loginFunc = {this.policeLoginHandler}/>
-            </div>
-        )
-    }
-
-    register() {
-        return (
-            <div>
-                <Register registerFunc = {this.custRegisterHandler}/>
-            </div>
-        )
-    }
     
+    home() {
+        return (
+            <div>
+                <h2>
+                    Please authenticate using Metamask
+                </h2>
+            </div>
+        )
+    }
     custOffences() {
         return (
             <div>
@@ -227,7 +190,7 @@ class App extends React.Component {
                         Logout
                     </button>
                 </div>
-                <CustOffences payFunc = {this.custPayHandler}/>
+                <CustOffences payFunc = {this.custPayHandler} offenceList = {this.state.offences}/>
             </div>
         )
     }
@@ -255,18 +218,7 @@ class App extends React.Component {
             }
         }
         else {
-            if(this.state.userType == "none") {
-                return this.chooseLogin()
-            }
-            else if (this.state.userType == "police") {
-                return this.policeLogin()
-            }
-            else if (this.state.userType == "customer") {
-                return this.custLogin()
-            }
-            else if (this.state.userType == "register") {
-                return this.register()
-            }
+            return this.home()
         }
     }
 

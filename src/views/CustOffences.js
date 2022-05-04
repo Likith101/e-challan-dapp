@@ -9,15 +9,10 @@ class CustOffences extends React.Component {
 
         this.state = {
             offences: true,
-            offenceList: [["132123", "askjbd", "waeds", "123123"], ["1233144233", "wqewq", "wea", "455345"]]
+            offenceList: this.props.offenceList
         }
 
         this.paymentHandler = this.paymentHandler.bind(this)
-    }
-
-    async componentDidMount() {
-        //populate list of offences
-        return
     }
 
     async paymentHandler(id) {
@@ -25,8 +20,8 @@ class CustOffences extends React.Component {
     }
 
     render() {
-    
-        if(this.offences == false) {
+        
+        if(this.offences == undefined || this.offences == false || this.offences == []) {
             return (
                 <div>
                     <h2>

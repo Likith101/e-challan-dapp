@@ -8,15 +8,14 @@ class FileOffence extends React.Component {
         super(props);
 
         this.state = {
-            offenceList: [["1", "drunk and driving"], ["2", "no helmet"]],
             location: "",
             offence: "",
-            image: null,
+            fine: "",
         }
 
         this.locationHandler = this.locationHandler.bind(this)
         this.offenceHandler = this.offenceHandler.bind(this)
-        this.fileHandler = this.fileHandler.bind(this)
+        this.fileHandler = this.fineHandler.bind(this)
     }
 
     async locationHandler(event) {
@@ -31,15 +30,15 @@ class FileOffence extends React.Component {
         })
     }
     
-    async fileHandler(event) {
+    async fineHandler(event) {
         this.setState({
-            image: event.target.files[0]
+            fine: event.target.value
         })
     }
 
     async submitHandler() {
 
-        this.props.addOffence(this.state.location, this.state.offence, this.state.image)
+        this.props.addOffence(this.state.location, this.state.offence, this.state.fine)
     }
 
     render()
@@ -57,17 +56,18 @@ class FileOffence extends React.Component {
 
                     <label>
                         <b>
-                            Offence Type
+                            Offence
                         </b>
                     </label>
+                    <input type = "text" placeholder = "Enter Offence Commited" name = "offence" onChange = {this.offenceHandler} required/>
 
-                    <select className='c1' onChange = {this.offenceHandler}>
-                        {this.state.offenceList.map((i) => <option key = {i[0]} value = {i[1]}>{i[1]}</option>)}
-                    </select>
-
-                    <input type="file" onChange = {this.fileHandler}>
-                    </input>
-
+                    <label>
+                        <b>
+                            Fine
+                        </b>
+                    </label>
+                    <input type = "text" placeholder = "Enter Fine Amount" name = "fine" onChange = {this.fineHandler} required/>
+                    
                     <button type="button" onSubmit = {this.submitHandler}>
                         Add offence
                     </button>
