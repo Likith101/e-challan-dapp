@@ -69,14 +69,6 @@ contract Ticket{
         return owner.balance;
     }
 
-//     function getOffences() public view returns (ticket[]){
-//       ticket[] id = new ticket[];
-//       for (uint i = 0; i < memberCount; i++) {
-//           Member storage member = members[i];
-//           id[i] = member;
-//       }
-//       return id;
-//   }
 }
 
 
