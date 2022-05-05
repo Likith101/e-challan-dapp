@@ -8,19 +8,25 @@ class FileOffence extends React.Component {
         super(props);
 
         this.state = {
-            location: "",
+            userId: "",
             offence: "",
-            fine: "",
+            fine: ""
         }
 
-        this.locationHandler = this.locationHandler.bind(this)
+        this.userIdHandler = this.userIdHandler.bind(this)
         this.offenceHandler = this.offenceHandler.bind(this)
-        this.fileHandler = this.fineHandler.bind(this)
+        this.fineHandler = this.fineHandler.bind(this)
     }
 
-    async locationHandler(event) {
+    async userIdHandler(event) {
         this.setState({
-            location: event.target.value
+            userId: event.target.value
+        })
+    }
+
+    async fineHandler(event) {
+        this.setState({
+            fine: event.target.value
         })
     }
 
@@ -28,17 +34,6 @@ class FileOffence extends React.Component {
         this.setState({
             offence: event.target.value
         })
-    }
-    
-    async fineHandler(event) {
-        this.setState({
-            fine: event.target.value
-        })
-    }
-
-    async submitHandler() {
-
-        this.props.addOffence(this.state.location, this.state.offence, this.state.fine)
     }
 
     render()
@@ -48,11 +43,11 @@ class FileOffence extends React.Component {
                 <div className = "container">
                     <label>
                         <b>
-                            Location
+                            User Id
                         </b>
                     </label>
                     
-                    <input type = "text" placeholder = "Enter Location" name = "location" onChange = {this.locationHandler} required/>
+                    <input type = "text" placeholder = "Enter User Id" name = "userId" onChange = {this.userIdHandler} required/>
 
                     <label>
                         <b>
@@ -68,7 +63,7 @@ class FileOffence extends React.Component {
                     </label>
                     <input type = "text" placeholder = "Enter Fine Amount" name = "fine" onChange = {this.fineHandler} required/>
                     
-                    <button type="button" onSubmit = {this.submitHandler}>
+                    <button type="button" onClick = {this.props.addOffence.bind(null ,this.state.userId, this.state.offence, this.state.fine)}>
                         Add offence
                     </button>
                 </div>

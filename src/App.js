@@ -4,6 +4,7 @@ import FileOffence from './views/FileOffence';
 import Web3 from 'web3';
 
 import './App.css'
+import { timers } from 'node-libs-browser';
 
 class App extends React.Component {
     constructor() {
@@ -14,7 +15,7 @@ class App extends React.Component {
             userType: "none",
             loggedin: false,
             userAddress: null,
-            owner: '0x7aFAf5aEc87b73057be97843B09a6C89d40953ac',
+            owner: '0x8b050B73017cd3f045f1830632909385c680E92d',
             offences: [],
             contractInfo: [
                 {
@@ -23,6 +24,16 @@ class App extends React.Component {
                             "internalType": "address",
                             "name": "_user",
                             "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_id",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_offence",
+                            "type": "string"
                         },
                         {
                             "internalType": "uint256",
@@ -44,6 +55,11 @@ class App extends React.Component {
                         },
                         {
                             "internalType": "uint256",
+                            "name": "_id",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint256",
                             "name": "_amount",
                             "type": "uint256"
                         }
@@ -55,25 +71,19 @@ class App extends React.Component {
                 },
                 {
                     "inputs": [],
-                    "stateMutability": "nonpayable",
-                    "type": "constructor"
-                },
-                {
-                    "inputs": [],
                     "name": "withdraw",
                     "outputs": [],
                     "stateMutability": "nonpayable",
                     "type": "function"
                 },
                 {
-                    "inputs": [
-                        {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                        }
-                    ],
-                    "name": "ticketHolders",
+                    "inputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "inputs": [],
+                    "name": "getBalance",
                     "outputs": [
                         {
                             "internalType": "uint256",
@@ -83,8 +93,91 @@ class App extends React.Component {
                     ],
                     "stateMutability": "view",
                     "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_user",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "getOffences",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "uint256",
+                                    "name": "_id",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "string",
+                                    "name": "_offence",
+                                    "type": "string"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "_amount",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "internalType": "struct Ticket.ticket[]",
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getOwner",
+                    "outputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "ticketHolder",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_id",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_offence",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
                 }
-                ]
+            ]
         }
 
         this.switchLoginAsCust = this.switchLoginAsCust.bind(this)
@@ -99,10 +192,18 @@ class App extends React.Component {
         await this.loadWeb3()
         window.contract = await this.loadContract()
 
-        if(this.state.userType == "customer") {
+        var owner = await window.contract.methods.getOwner().call()
+
+        if(owner == this.state.userAddress) {
+            this.setState({
+                userType: "police",
+            })
+        }
+        else {
             var offences = await window.contract.methods.getOffences(this.state.userAddress).call()
             this.setState({
-                offences: offences
+                offences: offences,
+                userType: "customer"
             })
         }
     }
@@ -112,22 +213,12 @@ class App extends React.Component {
             window.web3 = new Web3(window.ethereum)
             await window.ethereum.enable()
             
-            var accounts = window.web3.eth.getAccounts()
-            if(this.state.owner === accounts[0]) {
-                this.setState({
-                    loggedin: true,
-                    userType: "police",
-                    userAddress: accounts[0]
-                })
-            }
-            else {
-                
-                this.setState({
-                    loggedin: true,
-                    userType: "customer",
-                    userAddress: accounts[0]
-                })
-            }
+            var accounts = await window.web3.eth.getAccounts()
+
+            this.setState({
+                loggedin: true,
+                userAddress: accounts[0]
+            })
         }
         else {
             window.alert('Metamask authentication Necessary for application')
@@ -163,13 +254,16 @@ class App extends React.Component {
         })
     }
 
-    async custPayHandler(id) {
-        await window.contract.methods.payTicketFine(this.state.userAddress, id).call()
+    async custPayHandler(id, fine) {
+        await window.contract.methods.payTicketFine(this.state.userAddress, id, fine).send({from: this.state.userAddress})
         return 
     }
 
-    async addOffence(location, offence, fine) {
-        await window.contract.methods.issueTicketsPolice(location, offence, fine).call()
+    async addOffence(userId, offence, fine) {
+        var ticketId = Math.floor((Math.random() * 100) + 1);
+        fine = parseInt(fine)
+        console.log(userId, ticketId, offence, fine)
+        await window.contract.methods.issueTicketsPolice(userId, ticketId, offence, fine).send({from: this.state.userAddress})
         return
     }
     
@@ -185,11 +279,6 @@ class App extends React.Component {
     custOffences() {
         return (
             <div>
-                <div className="logOut">
-                    <button onClick = {this.logOut}>
-                        Logout
-                    </button>
-                </div>
                 <CustOffences payFunc = {this.custPayHandler} offenceList = {this.state.offences}/>
             </div>
         )
@@ -198,12 +287,7 @@ class App extends React.Component {
     fileOffence() {
         return (
             <div>
-                <div className="logOut">
-                    <button onClick = {this.logOut}>
-                        Logout
-                    </button>
-                </div>
-                <FileOffence addOffence = {this.addOffenceHandler}/>
+                <FileOffence addOffence = {this.addOffence}/>
             </div>
         )
     }

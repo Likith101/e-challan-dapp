@@ -23,7 +23,7 @@ contract Ticket{
     }
 
     function payTicketFine(address _user, uint256 _id, uint256 _amount) payable public {
-        require(msg.value >= challanAmount*_amount);
+        // require(msg.value >= challanAmount*_amount);
         payTicket(_user, _id, _amount);
     }
 
